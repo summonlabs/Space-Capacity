@@ -1,0 +1,78 @@
+# Build trees, wherever they are made.
+build/
+build-*/
+cmake-build-*/
+out/
+install/
+_install/
+_install-*/
+_stage/
+
+# Validation scratch space: fresh clones, sanitizer trees, downstream consumers.
+_scratch/
+_fresh/
+_asan/
+_downstream/
+
+# Space Capacity state files, locks, anchors and retained generations.
+*.spcstate
+*.spcstate.*
+*.tmp-*
+
+# Compiler and linker output.
+*.obj
+*.o
+*.lo
+*.a
+*.lib
+*.so
+*.so.*
+*.dylib
+*.dll
+*.exe
+*.exp
+*.ilk
+*.pdb
+*.idb
+*.gcda
+*.gcno
+*.gcov
+
+# CMake state.
+CMakeCache.txt
+CMakeFiles/
+CMakeUserPresets.json
+CTestTestfile.cmake
+cmake_install.cmake
+Testing/
+*.cmake.stamp
+compile_commands.json
+
+# IDE and editor state.
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.sln
+*.vcxproj
+*.vcxproj.*
+.cache/
+
+# Sanitizer and profiler output.
+*.asan
+*.tsan
+*.profraw
+*.profdata
+perf.data*
+
+# Benchmark residue, if a run is ever pointed at the tree.
+benchmark-results/
+*.bench.json
+
+# Scratch files nobody meant to keep.
+*.orig
+*.rej
+*.bak
+*.tmp
+*~

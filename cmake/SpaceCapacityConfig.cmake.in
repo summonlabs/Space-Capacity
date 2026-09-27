@@ -1,0 +1,31 @@
+@PACKAGE_INIT@
+
+# Space Capacity 1.0.0 - CMake package configuration.
+#
+# Consumers use find_package and link the namespaced target:
+#
+#   find_package(SpaceCapacity 1.0 REQUIRED)
+#   target_link_libraries(app PRIVATE dccp::space_capacity)
+#
+# No build-tree path is baked into this file, so the package works from any
+# install prefix.
+
+include(CMakeFindDependencyMacro)
+
+set(SPACE_CAPACITY_VERSION "@PROJECT_VERSION@")
+set(SPACE_CAPACITY_STORE_FORMAT_VERSION "1")
+set(SPACE_CAPACITY_MODEL_REVISION "1")
+
+include("${CMAKE_CURRENT_LIST_DIR}/SpaceCapacityTargets.cmake")
+
+set(SPACE_CAPACITY_LIBRARIES dccp::space_capacity)
+get_target_property(SPACE_CAPACITY_INCLUDE_DIRS dccp::space_capacity INTERFACE_INCLUDE_DIRECTORIES)
+
+if(NOT TARGET dccp::space_capacity)
+  set(SpaceCapacity_FOUND FALSE)
+  set(SpaceCapacity_NOT_FOUND_MESSAGE
+      "The Space Capacity package was found but its imported target dccp::space_capacity is missing.")
+  return()
+endif()
+
+check_required_components(SpaceCapacity)

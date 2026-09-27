@@ -1,0 +1,38 @@
+Space Capacity
+Copyright 2026 Summon Software Labs.
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Space Capacity is part of Data Center Control Plane (DCCP), Tranche 2: Facility
+Capacity and Placement. It is repository 11 of the canonical 72-runtime DCCP and
+owns physical-space capacity accounting across facility containment: stable
+location identities and generations, the containment hierarchy, spatial class,
+rack and rack-unit envelopes, occupancy claims, reserved footprint, expansion
+zones, incompatibility and exclusion regions, and service-clearance constraints,
+in exact integer units.
+
+It consumes identities and hierarchy from Physical Location Registry, Facility
+Topology, Rack Registry, Asset Registry and policy references, and it owns none
+of them. It does not own power, cooling, aggregate facility capacity, placement
+planning or future reservation authority, and it never grants placement.
+
+Third-party notices
+-------------------
+
+This product includes no third-party source code and links no third-party
+libraries. It is implemented against the C++20 standard library and the
+operating-system interfaces it needs for durable atomic file replacement and
+advisory file locking.
+
+The canonical serialization format, the integrity digest (SHA-256, FIPS 180-4),
+the CRC-32 header check value, and every identity, generation and epoch type are
+implemented in this repository.
+
+Space Capacity does not collect or transmit any telemetry. It opens no network
+sockets, performs no name resolution, and contacts no remote service. All state
+it writes is written to local files chosen by the operator and never leaves the
+machine running the software.
+
+Space Capacity accepts contributions from individuals and organizations on the
+terms of the Apache License 2.0 without requiring a Contributor License
+Agreement (CLA). See CONTRIBUTING.md for contribution guidance.
