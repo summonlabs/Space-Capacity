@@ -2,8 +2,7 @@
 
 **Physical-space capacity accounting for the Data Center Control Plane.**
 
-Space Capacity is DCCP Tranche 2, repository 11 of the canonical 72-runtime Data
-Center Control Plane. It is a portable C++20 library, a command line tool and a
+It is a portable C++20 library, a command line tool and a
 versioned CMake package. It has no third-party dependencies, opens no network
 socket, and transmits no telemetry.
 
@@ -745,7 +744,7 @@ have to isolate.
 | `README.md` | this file: boundary, model, semantics, usage, validation, limitations |
 | `CONTRIBUTING.md` | licensing of contributions, scope rules, build and test expectations |
 | `LICENSE` | Apache License 2.0 |
-| `NOTICE` | copyright, DCCP placement and third-party notice |
+| `NOTICE` | copyright and third-party notice |
 | `include/dccp/space_capacity/` | the public headers; `space_capacity.hpp` is the umbrella |
 | `src/` | the implementation; nothing in `src/` is installed |
 | `examples/` | the public API in use |
