@@ -30,6 +30,7 @@
 
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
@@ -39,6 +40,7 @@
 #include <string>
 #include <string_view>
 #include <system_error>
+#include <thread>
 #include <utility>
 #include <vector>
 
@@ -1288,6 +1290,52 @@ void case_16_in_memory_writes_nothing() {
 
 }  // namespace
 
+void case_17_commit_waits_for_a_reader() {
+  SC_CASE("a commit waits for a reader of the state file");
+  const std::filesystem::path state = "persist-17.spcstate";
+  clean_state(state);
+
+  SpaceCapacityRegistry registry;
+  if (!open_with_one_commit(options_for("persist-17.spcstate", "persist-seventeen"), registry,
+                            "p17-site-a")) {
+    return;
+  }
+  bool reader_opened = false;
+  bool committed = false;
+  {
+    // Another tool reading the store (an inspection, a backup, a scan) holds the
+    // state file open while the next commit replaces it, and closes it shortly
+    // after.
+    std::ifstream reader(state, std::ios::binary);
+    reader_opened = reader.is_open();
+    std::thread writer([&registry, &committed] {
+      committed = registry.apply(site_request("p17-site-b")).ok();
+    });
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    reader.close();
+    writer.join();
+  }
+  SC_CHECK(reader_opened);
+  // The replacement waits for the reader instead of failing the commit.
+  SC_CHECK(committed);
+  SC_CHECK_EQ(registry.revision().value(), std::uint64_t{2});
+  const Status verified = registry.verify();
+  SC_CHECK(verified.ok());
+  const Status closed = registry.close();
+  SC_CHECK(closed.ok());
+
+  Result<SpaceCapacityRegistry> reopened =
+      SpaceCapacityRegistry::open(options_for("persist-17.spcstate", "persist-seventeen"));
+  SC_CHECK(reopened.ok());
+  if (!reopened.ok()) {
+    note_error("reopen", reopened.error());
+    return;
+  }
+  SC_CHECK_EQ(reopened.value().revision().value(), std::uint64_t{2});
+  const Status reclosed = reopened.value().close();
+  SC_CHECK(reclosed.ok());
+}
+
 int main() {
   std::error_code error;
   const std::filesystem::path here = std::filesystem::current_path(error);
@@ -1309,6 +1357,7 @@ int main() {
   case_14_staging_is_retired();
   case_15_read_only_refuses_commit();
   case_16_in_memory_writes_nothing();
+  case_17_commit_waits_for_a_reader();
 
   return ::sc_test::summary("persistence");
 }

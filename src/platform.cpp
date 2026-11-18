@@ -280,11 +280,27 @@ Status atomic_replace(const std::filesystem::path& source, const std::filesystem
     return io_error("publish", source, "the staging file is not a regular file");
   }
 #if defined(_WIN32)
-  if (MoveFileExW(source.c_str(), target.c_str(),
-                  MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH) == 0) {
-    return io_error("atomic replace", target, "the operating system refused the replacement");
+  // While a reader has the target open (an inspection, a backup, an antivirus or
+  // indexing scan) the replace fails until the reader closes it, so it is
+  // retried for a bounded time (about 2 s). A directory in the way is not
+  // transient and fails at once.
+  for (int attempt = 0;; ++attempt) {
+    if (MoveFileExW(source.c_str(), target.c_str(),
+                    MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH) != 0) {
+      return Status::success();
+    }
+    const DWORD code = GetLastError();
+    const DWORD attributes = GetFileAttributesW(target.c_str());
+    const bool directory =
+        attributes != INVALID_FILE_ATTRIBUTES && (attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+    const bool transient = (code == ERROR_ACCESS_DENIED || code == ERROR_SHARING_VIOLATION ||
+                            code == ERROR_LOCK_VIOLATION) &&
+                           !directory;
+    if (!transient || attempt >= 100) {
+      return io_error("atomic replace", target, "the operating system refused the replacement");
+    }
+    Sleep(20);
   }
-  return Status::success();
 #else
   if (::rename(source.c_str(), target.c_str()) != 0) {
     return io_error("atomic replace", target, std::strerror(errno));
